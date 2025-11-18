@@ -16,9 +16,10 @@ format:
 editor: visual
 ---
 
-QR Code to this page
----
+**QR Code to this page**
 ![](assets/its_not_that_deep_qr_code.png){width=300 fig-align="center"}
+
+![](https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png){.center width=20} [Project source code](https://github.com/prince-ravi-leow/its_not_that_deep/) 
 
 # TL;DR
 
