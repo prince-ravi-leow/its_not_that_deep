@@ -1,0 +1,4 @@
+- source: Its_Not_That_Deep.qmd
+  quarto-pub:
+    - id: 8d8a959d-b020-4db8-a549-5d0283ccf40d
+      url: https://prince-ravi-leow.quarto.pub/its-not-that-deep

@@ -1,0 +1,191 @@
+---
+title: "\"It's Not That Deep\""
+subtitle: "A machine learning primer with the deep parts left out"
+author: "Prince Ravi Leow"
+date: "2025-04-01"
+date-modified: last-modified
+date-format: "YYYY-MM-DD"
+language:
+  title-block-published: "Published"
+  title-block-modified: "Updated"
+format: 
+    html:
+        title-block-banner: true
+        toc: true
+        toc-location: left
+editor: visual
+---
+
+![](assets/its_not_that_deep_qr_code.png){width=300 fig-align="center"}
+
+# TL;DR
+
+This is the ML primer I wish I had a little over a year ago — for someone who's a little squeamish at the sight of mathematical notation, but needs more than just Python package documentation to learn. In this document, I've tried to compile helpful resources, and pointers to get started on foundational machine learning methods and techniques — without diving into the more advanced 'deep' learning techniques.
+
+If you want a general higher-level overview of the fundamentals without being drowned in Python code, the [Google Developer Machine Learning courses](https://developers.google.com/machine-learning) strike a very nice balance between conceptual explanations and real-life applications. If you prefer a more hands-on practical approach, the [Kaggle Learn courses](https://www.kaggle.com/learn) are extremely comprehensive, and will teach you everything you need to know, with code, worked-examples, and exercises.
+
+The process of exploring, analysing and preparing your dataset is an essential part of ML. For these, I would recommend pandas creator Wes McKinney's [Python for Data Analysis](https://wesmckinney.com/book/), and tidyverse creator Hadley Wickham's [R for Data Science](https://r4ds.hadley.nz/), if you're more comfortable with R. If you want an overview of the data preparation process combined with practical machine learning applications, Jake VanderPlas' [Python Data Science Handbook](https://jakevdp.github.io/PythonDataScienceHandbook/) (PDSH) is filled with succinctly written, no-nonsense explanations of foundational concepts.
+
+In general, the Python ML-framework [scikit-learn's documentation landing page](https://scikit-learn.org/stable/index.html) contains code tutorials for every fundamental ML concept you can imagine, including exploratory data analysis, preprocessing, model training, performance evaluation and model tuning - a *must-read* if you want to get into machine learning using Python. Scikit-learn (a.k.a. sklearn) is a monster of a package, so if you want a guided tour of its core features and capabilities, I'd recommend the [respective PDSH section introducing it](https://jakevdp.github.io/PythonDataScienceHandbook/05.02-introducing-scikit-learn.html). 
+
+For R users, [caret](https://topepo.github.io/caret/) is a popular package that offers functionality similar to scikit-learn, with implementations of most classical and some modern ML methods. In addition, the linked documentation is easily-navigable, with a strong focus on pedagogy. 
+
+While modern ML applications are often centred around using software packages, under the hood it's all linear algebra and statistics. For a proper run-down on the interplay between the code and their underlying mathematical concepts, I would recommend [An Introduction to Statistical Learning](https://www.statlearning.com/), which has both R and Python editions.
+
+# Intro (+some assumptions and disclaimers)
+
+So, you want to get the machine to learn for you.
+
+No worries. But remember that your model's eventual performance will be beholden to the quality of your training data, and your ability to feed it meaningful information.
+
+When applied correctly, ML can be a powerful tool for exploratory data analysis, and building models for performing classification and prediction of categorical and continuous features, alike. The field is vast, and options are many, so I'm going to pick out the ones which are most applicable, based on my own personal experience, and advice from colleagues.
+
+First, a word of caution before you let your machine learn *anything*. One of my professors during my master's degree, said that **90%** of time spent 'doing' ML, should be on understanding your data first. While it is tempting to start the process by blindly shovelling your data into some random model, there is an important process of exploring, cleaning and partitioning your data which if not completed will lead to garbage performance, unexplainable outcomes and other downstream problems.
+
+Another thing to consider, is that building ML models are 'easy', as long as you don't consider *time* (more on this in the appropriate section). Therefore, I'll be assuming your data is *cross-sectional* — that is, that the data aren't *necessarily* dependant on time, or that we're decide to treating the model's output as a 'snapshot' of a particular time-point, under a specific set of conditions. If they *are* in fact dependent on time, as a preprocessing step, find a certain common time point of interest, and subset them accordingly.
+
+Finally, generally I'll be assuming you're using Python, although you can find great R-based alternatives for most of the methods covered (although **deep** learning in general is dominated by Python frameworks). 
+
+# Data, data, data...
+
+It’s easy to think machine learning is all *feeding* your data *into* ML models and architectures, but in reality, the most critical step is *preparing* your data so it’s *ready* for ML. There are multiple names for individual preparation processes, but in general, they can be divided into the following steps:
+
+1.  Exploratory Data Analysis (EDA) & preprocessing
+2.  Feature selection
+3.  Partitioning
+
+I have grouped EDA and preprocessing together, because they are often performed hand-in-hand. In fact, the two concepts are so tightly integrated, the line between them is often blurred. On one hand, there is an *exploratory* step, in which one aspires to truly understand their data, sort of how a general would surveying a battlefield and acquiring enemy intelligence, in order to devise the best possible plan of attack. On the other hand, since data tends to be noisy and riddled with outliers, inconsistencies and missing values. For this reason, the data often needs to be cleaned, transformed, and otherwise *preprocessed*, before it's ready for ML. In practice, you end up applying them tandem, in a sort of iterative loop, a sentiment which is best expressed in the Hadley Wickham's '[whole game](https://r4ds.hadley.nz/whole-game.html)' philosophy:
+
+![Whole game – r for data science(2e). (n.d.). Retrieved 18 November 2025, from https://r4ds.hadley.nz/whole-game.html](assets/r4ds-whole-game.png)
+
+In the exploratory phase, I personally like to visualise my data to get a feel for it. Whether that's through simple scatter plots, histograms, boxplots — while clichéd, an image is often truly worth a thousand console text readouts. One of my favourite examples, is this [Spotify Charts Analysis](https://rpubs.com/elgindykareem/top200charts), where the author produces some beautiful graphs, and provides the accompanying code.
+
+![Kareem Elgindy, Top 200 charts analysis, RPubs. (22 Jan 2022). Retrieved 18 November 2025, from https://rpubs.com/elgindykareem/top200charts](assets/top200charts_time_series.png)
+
+For the process of data visualisation, I love the using [seaborn](https://seaborn.pydata.org/tutorial.html), a Python package specialised in generating nice-looking plots with as little code as possible ~~and ensuring I (almost) never have to think about the matplotlib ever again~~. The [Kaggle Learn Data vizualisation course](https://www.kaggle.com/learn/data-visualization) gives great comprehensive overview of visualisations, with a focus on using it as a tool to explore, and better understand your data. I started using R before Python, so naturally I have to give a shout-out to the [R4DS visualize section](https://r4ds.hadley.nz/visualize.html), which highlights the ggplot package as a tool for data *exploration* — a sentiment which resonates strongly with me. For more inspiration, I can highly recommend [r/dataisbeautiful](https://www.reddit.com/r/dataisbeautiful/), a community dedicated to data viz with a focus on aesthetics.
+
+If you want more compact data representations, pandas has some very powerful tools for rapidly [calculating summary statistics](https://pandas.pydata.org/docs/getting_started/intro_tutorials/06_calculate_statistics.html) on your data, which can provide quick insights, with humble text read-outs. For a more advanced take on traditional visualisation analysis and transformation, the [Python for Data Analysis section on data cleaning](https://wesmckinney.com/book/data-cleaning) is elite, and appropriate for any Pythonista. If you're familiar with statistics, the [pingouin](https://pingouin-stats.org/build/html/index.html#) Python package has functions for a ton of statistical tests, and integrates neatly with pandas dataframes. 
+
+Assuming you have dozens, hundreds — maybe even thousands — of features, your data is so-called high-dimensional. Humans often struggle to think in higher dimensions. One of the most popular tool for dimensionality reduction is the PCA (principle component analysis), which can help you quickly get a feel for which features are worth exploring, which is covered nicely in the ([PDSH section on PCA](https://jakevdp.github.io/PythonDataScienceHandbook/05.09-principal-component-analysis.html)). The process of mining for and exploring meaningful and insightful characteristics of your data, is generally referred to as *feature engineering* (sometimes feature selection or extraction), and is one of the most important parts of ML. The [PDSH section on feature engineering](https://jakevdp.github.io/PythonDataScienceHandbook/05.04-feature-engineering.html) has a nice overview of performing preprocessing and feature selection together.
+
+Once you have explored your data, you'll have to perform multiple preparation steps before it's ML-ready. Examples of this could be missing value imputations, outlier-removal, and data standardisation. This [data preprocessing article from datacamp](https://www.datacamp.com/blog/data-preprocessing) and the [sklearn preprocessing module tutorial](https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing) give general overviews of the preprocessing steps with simple toy examples. For a similar article with some more advanced techniques such as hypothesis testing and feature engineering with real-life data (in this case diabetes health indicators), I'd recommend this [Kaggle Notebook](https://www.kaggle.com/code/julnazz/exploratory-data-analysis-eda-and-feature-select).
+
+Now that you've prepared your dataset, you'll have to partition it into a training and test sets. If we're being strictly correct, you'll have to *further* split your sets into different 'folds'. This collection of data partitioning techniques is called [cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html), and is is a very powerful tool for avoiding model overfitting, and ensuring sufficient data for downstream tasks such as performance evaluation and hyperparameter tuning (a.k.a. model fine-tuning in some contexts). The concepts can be a bit difficult to wrap one's head around, but luckily for us [sklearn's model selection module](https://scikit-learn.org/stable/api/sklearn.model_selection.html) has code-implementations for all the major ones, and take the pain away from us... Thank you scikit-learn. 
+
+# Let's learn some machines
+
+Alright, you've learned about your data... now it's time for the machine to learn for you.
+
+So what do you do?  
+
+To start with, ML methods can generally be categorised into:
+
+1.  I *know* what I'm looking for, now I'll teach the machine how to recognise it
+2.  I *don't know* what I'm looking for, maybe the machine can help me find patterns
+
+In supervised learning, we have input data paired with known outputs (labels), and you train model to predict those outputs. In unsupervised learning, we only have input data without labels, and the model tries to find patterns or structure. There are many (x3) explanations for this, so rather than rehash this, I'll refer you to [Google Developers Intro to ML](https://developers.google.com/machine-learning/intro-to-ml/what-is-ml) for a conceptual overview, and the [PDSH "what is machine learning?" section](https://jakevdp.github.io/PythonDataScienceHandbook/05.01-what-is-machine-learning.html) for formal definitions with accompanying code.
+
+One thing you should always ask yourself when picking a ML method, is what *question* you want to answer, or what *problem* you want to solve. Your choice will depend on whether you're predicting a value, classifying items, or trying to discover features which explain your data, or cluster together. Once you've determined this, the appropriate ML method will reveal itself. 
+
+As a primer, here are some extremely powerful and versatile methods:
+
+-   Linear models
+    -   Linear regression (supervised, continuous variable prediction)
+    -   Logistic regression (supervised, binary or multi-class classification)
+-   PCA (principle component analysis) (unsupervised, dimensionality reduction by capturing directions of maximum variance)
+-   k-means clustering (unsupervised, groups data into clusters)
+-   Random Forest & Gradient Boosting Decision Trees (supervised/unsupervised, regression, clustering and classification)
+
+All of these methods are well-documented, and you will find explanation in virtually any machine learning text book, and there are tons of tutorials with code for hands-on experimentation.
+
+While I've mainly focused on practical code-based approaches to doing machine learning, the reality is that all of these methods are simply computational implementations of mathematical and statistical representations. Understanding ML requires a careful balance of math, statistics and code — which is beautifully executed in [An Introduction to Statistical Learning](https://www.statlearning.com/), in both R and Python.
+
+Most importantly, these all have implementations in [scikit-learn](https://scikit-learn.org/stable/user_guide.html), which I would recommend for getting a feel for the fundamentals of ML, since the skills acquired from using this framework will translate well to others in the future.
+
+For my R-tists out there (haven't forgotten you), who want a balance of statistics and R-focused learning, the [Hands-On Machine Learning with R](https://bradleyboehmke.github.io/HOML/), along with an R-equivalent of scikit-learn called [caret](https://topepo.github.io/caret/), will get you started.
+
+## Bonus (going deeper)
+If you are ambitious, and you want to train a model with both many parameters and highly non-linear relationships and non-tabular training data (e.g. images or speech), you can look into training a neural network. The cutting edge ML frameworks for neural networks at the moment are [tensorflow](https://www.tensorflow.org/) and [PyTorch](https://pytorch.org/), and you won't have to look far for high-quality tutorials and worked examples.
+
+If you want an excellent insight into how the heck neural networks work, I cannot sing enough praises of the [neural network ](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) [linear algebra](https://youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&si=8ORnSDGptZ-GsJeE) YouTube video series by 3Blue1Brown. The concepts are incredibly well-explained and features some beautiful, buttery-smooth animations to help visualise the concepts.
+
+Once you add enough layers and nodes to a neural network, and the training datasets become massive, we start to talk about deep learning, which lies way outside of the scope of this document. If you want some more practical up-to-date practical tutorials with code and worked examples, look no further than [fast.ai](https://www.fast.ai/), which takes you all the way from a simple convolutional neural network, to cutting-edge image generation via stable diffusion, and large language models with transformers.
+
+If you are a more hands-on type of person who is interested in working with actual physical devices such as microcontrolers and IoT devices, the [Harvard Machine Learning Systems](https://www.mlsysbook.ai/) specialises in understanding, implementing and programming ML on actual physical systems in the real world.
+
+# Model evaluation
+## Metrics
+Once you train your model, you'll have to evaluate its performance (i.e. test it). In general, the gold-standard resource the [scikit-learn chapter on Model selection and evaluation](https://scikit-learn.org/stable/model_selection.html), which provides a comprehensive overview of partitioning your dataset, evaluating your model's performance, and performing subsequent model fine-tuning.
+
+If you have already partitioned your test-set, this will be as simple as running your model on your test set. Once you have have this test, there are different [performance metrics](https://developers.google.com/machine-learning/glossary/metrics) to evaluate your model on. Again, this is worth its own document, but a good balance is to use the so-called [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix), which combines a lot of performance metrics such as accuracy, and sensitivity into a single table, which can then be easily visualised with a [heatmap-style graph](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html) using scikit-learn.
+
+Since there the abundance of performance metrics with accompanying trade-offs can be overwhelming, I'd recommend the [Google Developers ML Course page for Classification](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall) for a gentle introduction to the fundamentals, using real-world examples. 
+
+## Explainability
+So, you've now trained your model and let's say it performs well. Great; why? If you have multiple input features, it can be difficult to explain which ones actually significantly impact your model's performance. Some frameworks such as XGBoost and LightGBM have in-built tools calculating and visualising feature importance, and can be an insightful exploratory tool to diagnose your model's performance. A popular model-agnostic method is the use of [Shapley values](https://shap.readthedocs.io/en/latest/example_notebooks/overviews/An%20introduction%20to%20explainable%20AI%20with%20Shapley%20values.html), powerful for un-black-box-ing the model (i.e. making it more explainable). 
+
+It's worth noting that due to the recent explosion in AI research and volume of available models, ['explainable AI' (XAI)](https://en.wikipedia.org/wiki/Explainable_artificial_intelligence) has become an active area of research. At the end of the day, machine learning models are just statistical tools, not sentient beings with wisdom or conscience. As Richard McElreath (author of Statistical Rethinking) writes, they can behave like ‘golems’—powerful yet mindless creations. This means that while possessing great power, they can also produce absurd or even harmful outcomes if misused, with decisions that may cause real-world damage. For this reason, it is extremely important that we look to create systems which truly represent reality, and aren't glorified prediction slot-machines.
+
+... I realise this took a bit of a serious turn, so as a palette cleanser, this [datacamp article on Explainable AI](https://www.datacamp.com/tutorial/explainable-ai-understanding-and-trusting-machine-learning-models) gives an actual proper introduction to the field, along with examples and code. 
+
+# It's time to stop (dealing with time-series data)
+
+Building ML models over time gets a little more complicated with time. This is because once our a data point relies on a prior piece of information, we have to treat them a little differently. It's so complicated, that many clinical prediction models don't even incorporate longitudinal (i.e. time-series) data (as per a seminar with Glen Martin of University of Manchester*\**), which make them ineligible for consideration for integration in hospitals or clinics.
+
+Therefore, if you are dealing with time, I'd actually recommend taking a step back, and performing some traditional statistical hypothesis testing, to determine whether a feature between different subgroups is significantly different over the progression of time. For this I would use the aforementioned [pingouin](https://pingouin-stats.org/build/html/index.html#minutes-to-pingouin) package. The linked page has an overview of all the relevant tests for longitudinal data (i.e. non-static data points which progress over time); look for the 'repeated measures' variants of each respective statistical test.
+
+Given there *is* a difference between groups, this opens the door to the challenging and exciting fields of predictive modelling and forecasting. For a pedagogical introduction to different aspects involved, you can explore the [time-series Kaggle course](https://www.kaggle.com/learn/time-series), which takes you from simple linear regression, to full-blown forecasting. If you want a cutting-edge tool with excellent documentation and tutorials, Meta AI (formerly Facebook Research) have a popular framework [Kats](https://github.com/facebookresearch/Kats), for all things time-series-related.
+
+...But first, *please* consider whether it needs to be that complicated in the first place. 
+
+Involving time involves opening up a can of worms. As time progresses, other variables and confounders may influence your outcome, and these effects grow with a longer observation window. If time is involved, pause and consider the bigger picture. Are there other factors or simpler patterns and other low-hanging fruit that explain your results? If it were up to me, I'd try to find certain time-points of value (e.g. all points morning, lunchtime, bedtime), isolate datasets according to those times, and try to understand the target phenomena within those timeframes first.  
+
+*\*I don't have a formal source on this one, you're gonna have to take my word for it*
+
+# Epilogue
+
+This primer was created in reaction to a social interaction I had. Basically, someone asked for some resources for machine learning, and I was stumped. The problem, was that I never had any formal ML training... so I panicked and basically fell back on the first one I could think of, which was the Google Dev ML course — not a terrible answer, but they didn't seem convinced... I promised I'd get back to them, and I basically sat down and compiled everything I knew (or how to learn it) into a single document.
+
+I never know how to end these things, but hopefully whoever is reading found use for this.
+
+# RESOURCES
+
+## General
+- 3Blue1Brown YouTube Video Series
+    - [Neural Networks](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) 
+    - [Linear Algebra](https://youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&si=8ORnSDGptZ-GsJeE)
+-   [Google Developers \| Machine Learning](https://developers.google.com/machine-learning): good for getting conceptual higher-level overview of ML-concepts, without being bombarded with Python code.
+-   [Kaggle \| Learn](https://www.kaggle.com/learn): Hands-on code for all the fundamentals from data wrangling, EDA, all the way to building your ML models
+-   [Scikit-learn documentation](https://scikit-learn.org/stable/index.html) - a *must-read* for all things ML in Python\
+    Recommended entries:
+    -   [Linear models](https://scikit-learn.org/stable/modules/linear_model.html)
+    -   [Model selection and evaluation](https://scikit-learn.org/stable/model_selection.html)
+-   [An Introduction to Statistical Learning](https://www.statlearning.com/): balance of statistics, math and applications (both R and Python editions)
+-   [Python Data Science Handbook (PDSH) \| by Jake VanderPlas](https://jakevdp.github.io/PythonDataScienceHandbook/): In addition to being a handy source for data exploration and preprocessing in Python, it also has an *excellent* chapter on Machine Learning.\
+    Recommended sctions:
+    -   Introducing Scikit-learn
+    -   Feature engineering
+    -   In Depth: Principle Component Analysis
+    -   In Depth: Linear Regression
+    -   In Depth: Decision Trees and Random Forests
+-   [Introduction to Machine Learning with Python \| by Andreas C. Müller & Sarah Guido](http://shop.oreilly.com/product/0636920030515.do): for those who prefer a more pedagogical tone and tangible code references
+-   [Hands-On Machine Learning with R](https://bradleyboehmke.github.io/HOML/): for the R-purist, who isn't squeamish at the sight of mathematical notation
+
+## EDA and preprocessing
+
+-   [EDA and feature select kaggle notebook](https://www.kaggle.com/code/julnazz/exploratory-data-analysis-eda-and-feature-select): comprehensive practical example of the entire data preparation pipeline process from exploration -\> cleaning -\> feature selection
+-   [Python for Data Analysis \| by Wes McKinney](https://wesmckinney.com/book/): for Pythonistas who truly want to get good at data processing, from the mastermind behind pandas himself
+-   [R for Data Science \| by Hadley Wickham](https://r4ds.hadley.nz/): in my opinion one of the greatest data science books of all time focusing on the exploratory phase of data preprocessing, from the mastermind behind the tidyverse himself
+-   [datacamp \| Data Preprocessing](https://www.datacamp.com/blog/data-preprocessing): general overview of ML data preparation techniques with Python code examples
+-   [Data cleaning Kaggle Learn Course](https://www.kaggle.com/learn/data-cleaning): hands-on practical data preparation with code and examples
+-   [seaborn tutorial](https://seaborn.pydata.org/tutorial.htmlhttps://seaborn.pydata.org/tutorial.html): data visualisation with the best-overall Python graphics package
+-   [pandas: calculate statistics tutorial](https://pandas.pydata.org/docs/getting_started/intro_tutorials/06_calculate_statistics.html): quick summary statistics on pandas dataframes
+-   [pingouin \| Quick start](https://pingouin-stats.org/build/html/index.html#minutes-to-pingouin): statistical hypothesis testing on pandas dataframes
+
+## Misc.
+
+-   [An introduction to explainable AI with Shapley values](https://shap.readthedocs.io/en/latest/example_notebooks/overviews/An%20introduction%20to%20explainable%20AI%20with%20Shapley%20values.html): a great tool for un 'black-box'ing your model, by calculating feature importance
+
+-   [pandas \| How to handle time series data with ease](https://pandas.pydata.org/pandas-docs/stable/getting_started/intro_tutorials/09_timeseries.html): hands-on tutorial on dealing with time in pandas -- I personally never use *any* other tool for dealing with Time-series; pandas is genuinely amazing for any time-manipulation tasks
+
+-   [Wikipedia \| Confusion Matrix](https://en.wikipedia.org/wiki/Confusion_matrix): a balanced, information-dense way of evaluating your model's performance
