@@ -16,6 +16,8 @@ format:
 editor: visual
 ---
 
+QR Code to this page
+---
 ![](assets/its_not_that_deep_qr_code.png){width=300 fig-align="center"}
 
 # TL;DR
