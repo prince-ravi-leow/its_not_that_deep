@@ -116,15 +116,15 @@ Once you add enough layers and nodes to a neural network, and the training datas
 
 If you are a more hands-on type of person who is interested in working with actual physical devices such as microcontrolers and IoT devices, the [Harvard Machine Learning Systems](https://www.mlsysbook.ai/) specialises in understanding, implementing and programming ML on actual physical systems in the real world.
 
-# Model evaluation
-## Metrics
+# Machine learn? I sure hope it did...
+## ML performance metrics
 Once you train your model, you'll have to evaluate its performance (i.e. test it). In general, the gold-standard resource the [scikit-learn chapter on Model selection and evaluation](https://scikit-learn.org/stable/model_selection.html), which provides a comprehensive overview of partitioning your dataset, evaluating your model's performance, and performing subsequent model fine-tuning.
 
 If you have already partitioned your test-set, this will be as simple as running your model on your test set. Once you have have this test, there are different [performance metrics](https://developers.google.com/machine-learning/glossary/metrics) to evaluate your model on. Again, this is worth its own document, but a good balance is to use the so-called [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix), which combines a lot of performance metrics such as accuracy, and sensitivity into a single table, which can then be easily visualised with a [heatmap-style graph](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html) using scikit-learn.
 
 Since there the abundance of performance metrics with accompanying trade-offs can be overwhelming, I'd recommend the [Google Developers ML Course page for Classification](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall) for a gentle introduction to the fundamentals, using real-world examples. 
 
-## Explainability
+## ML explainability
 So, you've now trained your model and let's say it performs well. Great; why? If you have multiple input features, it can be difficult to explain which ones actually significantly impact your model's performance. Some frameworks such as XGBoost and LightGBM have in-built tools calculating and visualising feature importance, and can be an insightful exploratory tool to diagnose your model's performance. A popular model-agnostic method is the use of [Shapley values](https://shap.readthedocs.io/en/latest/example_notebooks/overviews/An%20introduction%20to%20explainable%20AI%20with%20Shapley%20values.html), powerful for un-black-box-ing the model (i.e. making it more explainable). 
 
 It's worth noting that due to the recent explosion in AI research and volume of available models, ['explainable AI' (XAI)](https://en.wikipedia.org/wiki/Explainable_artificial_intelligence) has become an active area of research. At the end of the day, machine learning models are just statistical tools, not sentient beings with wisdom or conscience. As Richard McElreath (author of Statistical Rethinking) writes, they can behave like ‘golems’—powerful yet mindless creations. This means that while possessing great power, they can also produce absurd or even harmful outcomes if misused, with decisions that may cause real-world damage. For this reason, it is extremely important that we look to create systems which truly represent reality, and aren't glorified prediction slot-machines.
